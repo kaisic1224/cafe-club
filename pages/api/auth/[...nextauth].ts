@@ -14,13 +14,13 @@ export default NextAuth({
         params: {
           prompt: "consent",
           access_type: "offline",
-          response_type: "code"
-        }
-      }
-    })
+          response_type: "code",
+        },
+      },
+    }),
   ],
   secret: process.env.NEXTAUTH_SECRET!,
   pages: {
-    signIn: "/signin"
-  }
+    signIn: "/signin",
+  },
 });

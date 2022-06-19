@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { User } from "../components/User";
-import FriendsModal, { user } from "../components/FriendsModal";
+import FriendsModal from "../components/FriendsModal";
 
 const chibis = [
   "/chibigirl-1.png",
@@ -16,22 +16,8 @@ const chibis = [
   "/chibiboy-1.png",
   "/chibiboy-2.png",
   "/chibiboy-3.png",
-  "/chibiboy-4.png"
-];
-
-const friends: user[] = [
-  {
-    username: "dumbs",
-    status: false,
-    friendId: "#3214",
-    pfp: "chibiboy-1-pfp.png"
-  },
-  {
-    username: "dumbs",
-    status: true,
-    friendId: "#3214",
-    pfp: "chibigirl-3-pfp.png"
-  }
+  "/chibiboy-4.png",
+  "/chibigirl-6.png",
 ];
 
 const Home: NextPage = () => {
@@ -43,59 +29,56 @@ const Home: NextPage = () => {
     setDisplay(!display);
   }, [modal]);
 
-  const result = Math.random().toString(36).substring(2, 7);
-
   return (
-    <div className='h-screen overflow-x-hidden overflow-y-hidden'>
+    <div className="h-screen overflow-x-hidden overflow-y-hidden">
       <Head>
         <title>Cafe Club | Login</title>
       </Head>
 
       {session ? (
-        <div className=''>
-          <div className='relative -z-50'>
-            <div className='absolute'>
-              <img src='/cafe.jpg' className='w-screen aspect-video' />
+        <div className="">
+          <div className="relative -z-50">
+            <div className="absolute">
+              <img src="/cafe.jpg" className="w-screen aspect-video" />
             </div>
           </div>
-          <div className='text-6xl font-bold text-white'>
+          <div className="text-6xl font-bold text-white">
             Welcome back {session.user?.name}
           </div>
-          <h2 className='text-white text-4xl'>
-            Hover your icon and drag your character around!
+          <h2 className="text-white text-4xl">
+            Hover above your icon and drag your character around!
           </h2>
           <button
-            className='bg-red-500 w-fit px-4 py-2 rounded-xl text-white'
+            className="bg-red-500 w-fit px-4 py-2 rounded-xl text-white"
             onClick={() => signOut()}
           >
-            Log Out
+            LogOut
           </button>
           <User
             nickname={session.user?.name!}
             profilePicture={session.user?.image!}
             chibi={chibis[Math.floor(Math.random() * 9)]}
           />
-          <FriendsModal friendsList={friends} />
         </div>
       ) : (
         <>
           {display ? (
             <div
-              className='fixed inset-0 bg-black/[0.8]'
+              className="fixed inset-0 bg-black/[0.8]"
               onClick={() => setModal(!modal)}
             >
-              <div className='bg-slate-400 w-[800px] h-[450px] shadow-2xl rounded-md absolute -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 p-4'>
+              <div className="bg-slate-400 w-[800px] h-[450px] shadow-2xl rounded-md absolute -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 p-4">
                 <motion.h1
                   initial={{ y: "-100vh", opacity: 0.5 }}
                   animate={{ y: 0, opacity: 1 }}
-                  className='text-center hover-underline-animation'
+                  className="text-center hover-underline-animation"
                 >
                   Welcome, to Cafe Club
                 </motion.h1>
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   whileHover={{ scale: 1.1 }}
-                  className='bg-purple-600 text-white py-2 px-4 rounded-2xl text-2xl font-semibold block mx-auto mt-14 hover:bg-purple-500'
+                  className="bg-purple-600 text-white py-2 px-4 rounded-2xl text-2xl font-semibold block mx-auto mt-14 hover:bg-purple-500"
                   onClick={() => signIn()}
                 >
                   Sign Up
@@ -105,14 +88,14 @@ const Home: NextPage = () => {
           ) : (
             <div />
           )}
-          <div className='relative -z-50'>
-            <div className='absolute'>
-              <img src='/cafe.jpg' className='w-screen aspect-video' />
+          <div className="relative -z-50">
+            <div className="absolute">
+              <img src="/cafe.jpg" className="w-screen aspect-video" />
             </div>
           </div>
-          <div className='text-6xl font-bold text-white'>Die shitty</div>
+          <div className="text-6xl font-bold text-white">Die shitty</div>
           <button
-            className='bg-red-500 w-fit px-4 py-2 rounded-xl text-white'
+            className="bg-red-500 w-fit px-4 py-2 rounded-xl text-white"
             onClick={() => setModal(!modal)}
           >
             Login
