@@ -1,13 +1,14 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
-export interface friend {
+export interface user {
   friendId: string;
   status: boolean;
   username: string;
+  pfp: string;
 }
 
-const FriendsModal = ({ friendsList }: { friendsList: friend[] }) => {
+const FriendsModal = ({ friendsList }: { friendsList: user[] }) => {
   const bgRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(true);
 

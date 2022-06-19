@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { User } from "../components/User";
-import FriendsModal, { friend } from "../components/FriendsModal";
+import FriendsModal, { user } from "../components/FriendsModal";
 
 const chibis = [
   "/chibigirl-1.png",
@@ -19,16 +19,18 @@ const chibis = [
   "/chibiboy-4.png"
 ];
 
-const friends: friend[] = [
+const friends: user[] = [
   {
     username: "dumbs",
     status: false,
-    friendId: "#3214"
+    friendId: "#3214",
+    pfp: "chibiboy-1-pfp.png"
   },
   {
     username: "dumbs",
     status: true,
-    friendId: "#3214"
+    friendId: "#3214",
+    pfp: "chibigirl-3-pfp.png"
   }
 ];
 
