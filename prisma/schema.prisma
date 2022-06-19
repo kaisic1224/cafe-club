@@ -63,6 +63,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
+
   @@map(name: "users")
 }
 

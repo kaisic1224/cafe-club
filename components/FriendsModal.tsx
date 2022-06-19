@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
 export interface friend {
@@ -22,7 +22,7 @@ const FriendsModal = ({ friendsList }: { friendsList: friend[] }) => {
   return (
     <div
       ref={bgRef}
-      className={`fixed inset-0 transition-colors ${
+      className={`fixed inset-0 transition-colors duration-300 ${
         open ? `bg-black/40` : "bg-transparent pointer-events-none"
       }`}
       onClick={(e) => {
