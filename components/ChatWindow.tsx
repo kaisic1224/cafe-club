@@ -4,12 +4,14 @@ import { user } from "./FriendsModal";
 import { FaPaperPlane } from "react-icons/fa";
 import { ChatBubble } from "./ChatBubble";
 import { v4 as uuidv4 } from "uuid";
+import Link from "next/link";
 
 const socket = io("http://localhost:3001");
 
 export interface message {
   sender: user;
   content: string;
+  id: string;
 }
 
 const ChatWindow = () => {
@@ -19,7 +21,8 @@ const ChatWindow = () => {
   function sendMessage() {
     socket.emit("msg", {
       content: send,
-      sender: "me"
+      sender: "me",
+      id: uuidv4()
     });
   }
 
@@ -42,16 +45,15 @@ const ChatWindow = () => {
             </div>
           </div>
           {messages.map((msg) => (
-            <ChatBubble msg={msg} />
+            <ChatBubble key={msg.id} msg={msg} />
           ))}
         </div>
       </div>
-      <a
-        className='bg-orange-400 px-4 py-2 text-white rounded fixed bottom-0'
-        href='/'
-      >
-        Go back
-      </a>
+      <Link href='/'>
+        <a className='bg-orange-400 px-4 py-2 text-white rounded fixed bottom-0'>
+          Go back
+        </a>
+      </Link>
       <div className='relative'>
         <div className='min-w-2xl fixed bottom-0 right-[425px]'>
           <input
