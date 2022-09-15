@@ -22,18 +22,15 @@ const chibis = [
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
-  const [modal, setModal] = useState(true);
-  const [display, setDisplay] = useState(false);
-
-  useEffect(() => {
-    setDisplay(!display);
-  }, [modal]);
+  const [display, setDisplay] = useState(true);
 
   return (
     <div className='h-screen overflow-x-hidden overflow-y-hidden'>
       <Head>
         <title>Cafe Club | Login</title>
       </Head>
+
+      <FriendsModal friendsList={[]} />
 
       {session ? (
         <div className=''>
@@ -69,11 +66,11 @@ const Home: NextPage = () => {
           {display ? (
             <div
               className='fixed inset-0 bg-black/[0.8]'
-              onClick={() => setModal(!modal)}
+              onClick={() => setDisplay(!display)}
             >
               <div className='bg-slate-400 w-[800px] h-[450px] shadow-2xl rounded-md absolute -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 p-4'>
                 <motion.h1
-                  initial={{ y: "-100vh", opacity: 0.5 }}
+                  initial={{ y: 100, opacity: 0.5 }}
                   animate={{ y: 0, opacity: 1 }}
                   className='text-center hover-underline-animation'
                 >
@@ -81,7 +78,7 @@ const Home: NextPage = () => {
                 </motion.h1>
                 <motion.button
                   whileTap={{ scale: 0.9 }}
-                  whileHover={{ scale: 1.1 }}
+                  whileHover={{ scale: 1.05 }}
                   className='bg-purple-600 text-white py-2 px-4 rounded-2xl text-2xl font-semibold block mx-auto mt-14 hover:bg-purple-500'
                   onClick={() => signIn()}
                 >
@@ -101,10 +98,9 @@ const Home: NextPage = () => {
               />
             </div>
           </div>
-          <div className='text-6xl font-bold text-white'>Die shitty</div>
           <button
             className='bg-red-500 w-fit px-4 py-2 rounded-xl text-white'
-            onClick={() => setModal(!modal)}
+            onClick={() => setDisplay(!display)}
           >
             Login
           </button>
