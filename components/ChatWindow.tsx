@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, FormEvent } from "react";
 import { io } from "socket.io-client";
-import { user } from "./FriendsModal";
 import { FaPaperPlane } from "react-icons/fa";
 import { ChatBubble } from "./ChatBubble";
 import { v4 as uuidv4 } from "uuid";
 import Link from "next/link";
-
-const socket = io("http://localhost:3001");
+import { useSession } from "next-auth/react";
+import { motion } from "framer-motion";
 
 export interface message {
-  sender: user;
+  sender: string;
+  senderId: string;
   content: string;
   id: string;
 }
@@ -17,13 +17,24 @@ export interface message {
 const ChatWindow = () => {
   const [messages, setMessages] = useState<message[]>([]);
   const [send, setSend] = useState("");
+  const { data: session } = useSession();
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const socket = io("http://localhost:3001");
 
-  function sendMessage() {
+  function sendMessage(e: KeyboardEvent | MouseEvent) {
+    if (
+      (e as KeyboardEvent).key != "Enter" &&
+      (e.target as HTMLElement)?.dataset.btn != "msg"
+    )
+      return;
     socket.emit("msg", {
       content: send,
-      sender: "me",
+      senderId: session?.userId,
+      sender: session?.user?.name,
       id: uuidv4()
     });
+    setSend("");
+    inputRef.current!.style.height = "auto";
   }
 
   useEffect(() => {
@@ -34,49 +45,42 @@ const ChatWindow = () => {
 
   return (
     <>
-      <div className='absolute top-0 right-0 h-fit bg-amber-900 max-w-md w-md'>
-        <div className='flex flex-col overflow-y-auto max-w-md w-md'>
-          <div className='flex p-4 w-fit max-w-md'>
-            <div className='w-fit text-white rounded-2xl break-word'>
-              <span className=''>
-                Please be respectful in chat! Refrain from using profanity and
-                enjoy :)
-              </span>
-            </div>
-          </div>
+      <motion.div
+        initial={{ x: "100%" }}
+        animate={{ x: 0 }}
+        transition={{ delay: 5 * 0.15 + 1, ease: "easeOut", duration: 0.6 }}
+        className='absolute top-0 right-0 h-screen bg-amber-900 flex flex-col max-w-md w-full gap-4'
+      >
+        <div className='flex flex-col overflow-y-auto text-white p-4 flex-1 msgs-scroll'>
           {messages.map((msg) => (
             <ChatBubble key={msg.id} msg={msg} />
           ))}
         </div>
-      </div>
-      <Link href='/'>
-        <a className='bg-orange-400 px-4 py-2 text-white rounded fixed bottom-0'>
-          Go back
-        </a>
-      </Link>
-      <div className='relative'>
-        <div className='min-w-2xl fixed bottom-0 right-[425px]'>
-          <input
+
+        <div className='mb-2 flex w-full px-4 gap-2'>
+          <textarea
+            ref={inputRef}
             value={send}
-            className='min-h-[40px] rounded-md bg-rose-100 w-3/5 ml-6 p-2 outline-none font-bold'
+            minLength={1}
+            maxLength={250}
+            className='rounded-md bg-rose-100 w-full p-2 outline-none font-bold resize-none'
             placeholder='Type here...'
             onChange={(e) => {
               setSend(e.target.value);
+              e.target.style.height = "auto";
+              e.target.style.height = e.target.scrollHeight + "px";
             }}
-            type='text'
+            onKeyDown={(e) => sendMessage(e as unknown as KeyboardEvent)}
           />
-          <label htmlFor=''></label>
           <button
-            className='text-white px-4 py-2 rounded bg-orange-300 ml-2'
-            onClick={() => {
-              sendMessage();
-              setSend("");
-            }}
+            data-btn='msg'
+            onClick={(e) => sendMessage(e as unknown as MouseEvent)}
+            className='rounded-md bg-orange-400 p-3 text-white font-bold uppercase'
           >
             Send
           </button>
         </div>
-      </div>
+      </motion.div>
     </>
   );
 };

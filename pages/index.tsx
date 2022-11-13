@@ -1,11 +1,18 @@
-import type { NextPage } from "next";
+import type { GetServerSidePropsContext, NextPage } from "next";
 import { useSession, signIn, signOut } from "next-auth/react";
 import Head from "next/head";
-import Image from "next/image";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { User } from "../components/User";
 import FriendsModal from "../components/FriendsModal";
+import { FaPlus, FaUserFriends } from "react-icons/fa";
+import { ImExit } from "react-icons/im";
+import { useRouter } from "next/router";
+import prisma from "../lib/prisma";
+import { unstable_getServerSession } from "next-auth";
+import { authoptions } from "./api/auth/[...nextauth]";
+import { User as UserModel } from "@prisma/client";
+import PageTransition from "../components/PageTransition";
 
 const chibis = [
   "/chibigirl-1.png",
@@ -20,9 +27,68 @@ const chibis = [
   "/chibigirl-6.png"
 ];
 
-const Home: NextPage = () => {
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  const session = await unstable_getServerSession(
+    ctx.req,
+    ctx.res,
+    authoptions
+  );
+
+  if (!session || Date.parse(session.updatedAt as string) < Date.now()) {
+    return {
+      props: {
+        friends: []
+      }
+    };
+  }
+
+  const user = await prisma.user.findFirst({
+    where: { email: session?.user?.email! },
+    include: {
+      friends: true
+    }
+  });
+
+  const formatedFriends = user?.friends.map((friend) => {
+    return {
+      ...friend,
+      updatedAt: friend.updatedAt.toString(),
+      createdAt: friend.createdAt.toString()
+    };
+  });
+
+  return {
+    props: {
+      friends: formatedFriends
+    }
+  };
+}
+
+const Home: NextPage<{ friends: UserModel[] }> = ({
+  friends
+}: {
+  friends: UserModel[];
+}) => {
   const { data: session } = useSession();
   const [display, setDisplay] = useState(true);
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const audioRef = useRef<HTMLAudioElement>(null);
+  // const [playing, setPlaying] = useState(false);
+
+  const buttons = [
+    {
+      icon: <FaPlus />,
+      tooltip: "Create a room",
+      func: () => router.push("rooms/qwrt")
+    },
+    {
+      icon: <FaUserFriends />,
+      tooltip: "Friends List",
+      func: () => setOpen(true)
+    },
+    { icon: <ImExit />, tooltip: "Exit" }
+  ];
 
   return (
     <div className='h-screen overflow-x-hidden overflow-y-hidden'>
@@ -30,19 +96,54 @@ const Home: NextPage = () => {
         <title>Cafe Club | Login</title>
       </Head>
 
-      <FriendsModal friendsList={[]} />
+      <FriendsModal open={open} setOpen={setOpen} friendsList={friends ?? []} />
+
+      {/* <div className='fixed top-0 right-0'>
+        <button
+          onClick={() =>
+            playing ? audioRef.current?.pause() : audioRef.current?.play()
+          }
+        >
+          click me to stop da music
+        </button>
+        <audio autoPlay loop ref={audioRef}>
+          <source src='lofi.mp3' />
+        </audio>
+      </div> */}
+
+      <div className='relative -z-50'>
+        <div className='absolute'>
+          <img
+            src='/cafe.jpg'
+            className='w-screen aspect-video'
+            alt='Cafe background image'
+          />
+        </div>
+      </div>
+
+      <div className='fixed bottom-2 flex items-center justify-center left-1/2 -translate-x-1/2 text-white gap-2'>
+        {buttons.map((button) => {
+          return (
+            <div key={button.tooltip} className='relative'>
+              <div
+                onClick={button.func}
+                className='bg-red-500 px-5 py-2 rounded-lg hover:bg-red-600 cursor-pointer z-50 peer'
+              >
+                {button.icon}
+              </div>
+              <span
+                className='absolute -top-11 left-1/2 -translate-x-1/2 px-3 py-1 whitespace-nowrap bg-black border-gray-800 border-2 rounded-lg scale-0 peer-hover:scale-100
+               transition-transform delay-200 duration-200'
+              >
+                {button.tooltip}
+              </span>
+            </div>
+          );
+        })}
+      </div>
 
       {session ? (
-        <div className=''>
-          <div className='relative -z-50'>
-            <div className='absolute'>
-              <img
-                src='/cafe.jpg'
-                className='w-screen aspect-video'
-                alt='Background cafe image'
-              />
-            </div>
-          </div>
+        <>
           <div className='text-6xl font-bold text-white'>
             Welcome back {session.user?.name}
           </div>
@@ -60,15 +161,15 @@ const Home: NextPage = () => {
             profilePicture={session.user?.image!}
             chibi={chibis[Math.floor(Math.random() * 9)]}
           />
-        </div>
+        </>
       ) : (
         <>
-          {display ? (
-            <div
+          {display && (
+            <motion.div
               className='fixed inset-0 bg-black/[0.8]'
               onClick={() => setDisplay(!display)}
             >
-              <div className='bg-slate-400 w-[800px] h-[450px] shadow-2xl rounded-md absolute -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 p-4'>
+              <div className='bg w-[800px] h-[450px] shadow-2xl rounded-md absolute -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 p-4'>
                 <motion.h1
                   initial={{ y: 100, opacity: 0.5 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -85,19 +186,9 @@ const Home: NextPage = () => {
                   Sign Up
                 </motion.button>
               </div>
-            </div>
-          ) : (
-            <div />
+            </motion.div>
           )}
-          <div className='relative -z-50'>
-            <div className='absolute'>
-              <img
-                src='/cafe.jpg'
-                className='w-screen aspect-video'
-                alt='Cafe background image'
-              />
-            </div>
-          </div>
+
           <button
             className='bg-red-500 w-fit px-4 py-2 rounded-xl text-white'
             onClick={() => setDisplay(!display)}

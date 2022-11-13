@@ -29,3 +29,32 @@
   transform: scaleX(1);
   transform-origin: bottom left;
 }
+
+.ball {
+  translate: -50% 0;
+}
+
+.msgs-scroll::-webkit-scrollbar {
+  width: 12px;
+}
+
+.msgs-scroll::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 16px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.msgs-scroll:hover::-webkit-scrollbar-thumb {
+  background-color: rgb(94, 34, 14);
+}
+
+@layer components {
+  .ball {
+    @apply absolute bottom-0 left-1/2  aspect-square w-12 skew-y-12 rounded-full z-[9999];
+  }
+
+  .page-bars {
+    @apply bg-orange-900;
+  }
+}
